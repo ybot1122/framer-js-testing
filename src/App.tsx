@@ -13,30 +13,17 @@ enum SlideState {
   Future = 'future',
 }
 
-function Section({ index, total, state }: { index: number, total: number, state: SlideState }) {
-  const { scrollYProgress } = useScroll();
-  const myStart = (1 / total) * index;
-  const myEnd = myStart + (1 / total);
-
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-
-    if (latest >= myStart && latest < myEnd) {
-      console.log("Container " + index + " in view")
-    }
-  })
-
-
-  let className = '';
-  if (state === SlideState.Past) {
-    className = 'past'
-  } else if (state === SlideState.Future) {
-    className = 'future'
+function Section({ index, total, activeInd }: { index: number, total: number, activeInd: number }) {
+  let top = '0';
+  if (index < activeInd) {
+    top = ((activeInd - index) * -100) + 'vh';
+  } else if (index > activeInd) {
+    top = ((index - activeInd) * 100) + 'vh';
   }
 
   return (
     <section 
-    className={className}
-    style={{background: index % 2 === 0 ? 'blue' : 'red', zIndex: total - index}}>
+    style={{background: index % 2 === 0 ? 'blue' : 'red', zIndex: total - index, top}}>
       <motion.h2>{`#00${index}`}</motion.h2>
     </section>
   );
@@ -51,27 +38,41 @@ export default function App() {
   });
 
   const activeIndRef = useRef(0);
+  const throttledRef = useRef(false);
   const [activeInd, setActiveInd] = useState(activeIndRef.current);
 
-  const wheelCb = useCallback((event: WheelEvent) => {
-      console.log(event.deltaY, activeInd, activeIndRef.current)
+  const goNext = useCallback(() => {
+    if (activeIndRef.current === 5 || throttledRef.current) return;
 
-      if (event.deltaY < 0 && activeIndRef.current > 0) {
-        activeIndRef.current -= 1;
-        setActiveInd(activeIndRef.current)
-      } else if (event.deltaY > 0 && activeIndRef.current < 5) {
-        activeIndRef.current += 1;
-        setActiveInd(activeIndRef.current)
-      }
-
-      console.log(activeInd, activeIndRef.current)
-
+    activeIndRef.current += 1;
+    setActiveInd(activeIndRef.current);
   }, [setActiveInd])
 
+  const goPrevious = useCallback(() => {
+    if (activeIndRef.current === 0 || throttledRef.current) return;
+
+    activeIndRef.current -= 1;
+    setActiveInd(activeIndRef.current);
+  }, [setActiveInd])
+
+
+  const wheelCb = useCallback((ind: number) => (event: WheelEvent) => {
+
+      if (ind !== activeIndRef.current || throttledRef.current) return;
+
+      if (event.deltaY < 0 && activeIndRef.current > 0) {
+        goPrevious();
+      } else if (event.deltaY > 0 && activeIndRef.current < 5) {
+        goNext();
+      }
+
+  }, [goNext, goPrevious])
+
   useEffect(() => {
-    addEventListener("wheel", wheelCb);
-    return () => removeEventListener('wheel', wheelCb)
-  }, [wheelCb])
+    const cb = wheelCb(activeInd)
+    addEventListener("wheel", cb);
+    return () => removeEventListener('wheel', cb)
+  }, [wheelCb, activeInd])
   
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     console.log("Page scroll: ", latest)
@@ -80,13 +81,7 @@ export default function App() {
   return (
     <>
       {[0, 1, 2, 3, 4, 5].map((ind) => {
-        let state = SlideState.Current;
-        if (ind < activeInd) {
-          state = SlideState.Past
-        } else if (ind > activeInd) {
-          state = SlideState.Future
-        }
-          return <Section index={ind} total={6} key={ind} state={state} />
+          return <Section index={ind} total={6} key={ind} activeInd={activeInd} />
       }
       )}
     </>
