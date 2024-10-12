@@ -4,14 +4,7 @@ import {
   motion,
   useMotionValueEvent,
   useScroll,
-  useSpring,
 } from "framer-motion";
-
-enum SlideState {
-  Past = 'past',
-  Current = 'current',
-  Future = 'future',
-}
 
 function Section({ index, total, activeInd }: { index: number, total: number, activeInd: number }) {
   let top = '0';
@@ -31,11 +24,6 @@ function Section({ index, total, activeInd }: { index: number, total: number, ac
 
 export default function App() {
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
 
   const activeIndRef = useRef(0);
   const throttledRef = useRef(false);
