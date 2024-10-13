@@ -17,11 +17,13 @@ function Section({
   total,
   activeInd,
   yOffset,
+  goToSlide,
 }: {
   index: number;
   total: number;
   activeInd: number;
   yOffset: number;
+  goToSlide: (ind: number) => void;
 }) {
   let top = 0 + "px";
   if (index < activeInd) {
@@ -41,6 +43,8 @@ function Section({
       className={yOffset === 0 ? 'animated' : ''}
     >
       <h2>{`#00${index}`}</h2>
+      <div><button onClick={() => goToSlide(0)}>Go to slide 1</button></div>
+      <div><button onClick={() => goToSlide(5)}>Go to slide 6</button></div>
     </section>
   );
 }
@@ -54,6 +58,13 @@ export default function App() {
   const yOffsetRef = useRef(0);
   const [activeInd, setActiveInd] = useState(activeIndRef.current);
   const [yOffset, setYOffset] = useState(0);
+
+  const goToSlide = useCallback((ind: number) => {
+    setActiveInd(ind);
+    activeIndRef.current = ind;
+    setYOffset(0);
+    yOffsetRef.current = 0;
+  }, [setActiveInd, setYOffset])
 
   const goNext = useCallback(() => {
     if (activeIndRef.current === 5) return;
@@ -165,6 +176,7 @@ export default function App() {
             key={ind}
             activeInd={activeInd}
             yOffset={yOffset}
+            goToSlide={goToSlide}
           />
         );
       })}
