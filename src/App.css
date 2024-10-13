@@ -17,7 +17,7 @@ section {
   justify-content: center;
   align-items: center;
   perspective: 500px;
-  transition: all .5s ease-out;
+  transition: top 0.5s ease-out;
 }
 
 section.past {
