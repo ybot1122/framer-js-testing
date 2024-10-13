@@ -6,7 +6,10 @@ import { Lethargy } from "lethargy-ts";
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_THRESHOLD_MS = 200;
 
-const lethargy = new Lethargy();
+const lethargy = new Lethargy({
+  delay: 50,
+  sensitivity: 40
+});
 
 function Section({ index, total, activeInd }: { index: number, total: number, activeInd: number }) {
   let top = '0';
