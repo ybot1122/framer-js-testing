@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Lethargy } from "lethargy-ts";
 
 const SLIDE_THROTTLE_MS = 500;
+const SWIPE_THRESHOLD_MS = 200;
 
 const lethargy = new Lethargy();
 
@@ -24,6 +25,7 @@ function Section({ index, total, activeInd }: { index: number, total: number, ac
 }
 
 export default function App() {
+  const pointerStartData = useRef<undefined | {timestamp: number, y: number}>();
   const activeIndRef = useRef(0);
   const throttledRef = useRef(false);
   const [activeInd, setActiveInd] = useState(activeIndRef.current);
@@ -56,9 +58,7 @@ export default function App() {
 
 
   const wheelCb = useCallback((event: WheelEvent) => {
-
     const isIntentional = lethargy.check(event);
-
     if (isIntentional) {
         if (event.deltaY < 0 && activeIndRef.current > 0) {
           goPrevious();
@@ -68,10 +68,37 @@ export default function App() {
     }
   }, [goNext, goPrevious])
 
+  const pointerDownCb = useCallback((event: PointerEvent) => {
+    pointerStartData.current = {
+      timestamp: Date.now(),
+      y: event.clientY
+    }
+  }, [])
+
+  const pointerUpCb = useCallback((event: PointerEvent) => {
+
+    if (!pointerStartData.current) return;
+    if (Date.now() - pointerStartData.current?.timestamp > SWIPE_THRESHOLD_MS) return;
+    if (event.y < pointerStartData.current.y) {
+      goNext();
+    } else {
+      goPrevious();
+    }
+
+    pointerStartData.current = undefined;
+  }, [goNext, goPrevious])
+
+
   useEffect(() => {
     addEventListener("wheel", wheelCb);
-    return () => removeEventListener('wheel', wheelCb)
-  }, [wheelCb, activeInd])
+    addEventListener("pointerdown", pointerDownCb);
+    addEventListener("pointerup", pointerUpCb);
+    return () => {
+      removeEventListener('wheel', wheelCb)
+      removeEventListener("pointerdown", pointerDownCb)
+      removeEventListener("pointerup", pointerUpCb)
+    }
+  }, [wheelCb, pointerDownCb, pointerUpCb])
   
   return (
     <>
