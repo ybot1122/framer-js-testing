@@ -1,10 +1,11 @@
 import './App.css'
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from "framer-motion";
+
+import { Lethargy } from "lethargy-ts";
+
+const SLIDE_THROTTLE_MS = 500;
+
+const lethargy = new Lethargy();
 
 function Section({ index, total, activeInd }: { index: number, total: number, activeInd: number }) {
   let top = '0';
@@ -17,55 +18,61 @@ function Section({ index, total, activeInd }: { index: number, total: number, ac
   return (
     <section 
     style={{background: index % 2 === 0 ? 'blue' : 'red', zIndex: total - index, top}}>
-      <motion.h2>{`#00${index}`}</motion.h2>
+      <h2>{`#00${index}`}</h2>
     </section>
   );
 }
 
 export default function App() {
-  const { scrollYProgress } = useScroll();
-
   const activeIndRef = useRef(0);
   const throttledRef = useRef(false);
   const [activeInd, setActiveInd] = useState(activeIndRef.current);
 
   const goNext = useCallback(() => {
-    if (activeIndRef.current === 5 || throttledRef.current) return;
+    if (activeIndRef.current === 5) return;
+    if (throttledRef.current) {
+      console.log('throttled');
+      return;
+    }
 
+    throttledRef.current = true;
     activeIndRef.current += 1;
     setActiveInd(activeIndRef.current);
+    setTimeout(() => throttledRef.current = false, SLIDE_THROTTLE_MS);
   }, [setActiveInd])
 
   const goPrevious = useCallback(() => {
-    if (activeIndRef.current === 0 || throttledRef.current) return;
+    if (activeIndRef.current === 0) return;
+    if (throttledRef.current) {
+      console.log('throttled');
+      return;
+    }
 
+    throttledRef.current = true;
     activeIndRef.current -= 1;
     setActiveInd(activeIndRef.current);
+    setTimeout(() => throttledRef.current = false, SLIDE_THROTTLE_MS);
   }, [setActiveInd])
 
 
-  const wheelCb = useCallback((ind: number) => (event: WheelEvent) => {
+  const wheelCb = useCallback((event: WheelEvent) => {
 
-      if (ind !== activeIndRef.current || throttledRef.current) return;
+    const isIntentional = lethargy.check(event);
 
-      if (event.deltaY < 0 && activeIndRef.current > 0) {
-        goPrevious();
-      } else if (event.deltaY > 0 && activeIndRef.current < 5) {
-        goNext();
-      }
-
+    if (isIntentional) {
+        if (event.deltaY < 0 && activeIndRef.current > 0) {
+          goPrevious();
+        } else if (event.deltaY > 0 && activeIndRef.current < 5) {
+          goNext();
+        }        
+    }
   }, [goNext, goPrevious])
 
   useEffect(() => {
-    const cb = wheelCb(activeInd)
-    addEventListener("wheel", cb);
-    return () => removeEventListener('wheel', cb)
+    addEventListener("wheel", wheelCb);
+    return () => removeEventListener('wheel', wheelCb)
   }, [wheelCb, activeInd])
   
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    console.log("Page scroll: ", latest)
-  })
-
   return (
     <>
       {[0, 1, 2, 3, 4, 5].map((ind) => {
