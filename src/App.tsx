@@ -37,6 +37,7 @@ function Section({
         top,
         marginTop: yOffset,
       }}
+      className={yOffset === 0 ? 'animated' : ''}
     >
       <h2>{`#00${index}`}</h2>
     </section>
@@ -49,13 +50,13 @@ export default function App() {
   >();
   const activeIndRef = useRef(0);
   const throttledRef = useRef(false);
+  const yOffsetRef = useRef(0);
   const [activeInd, setActiveInd] = useState(activeIndRef.current);
   const [yOffset, setYOffset] = useState(0);
 
   const goNext = useCallback(() => {
     if (activeIndRef.current === 5) return;
     if (throttledRef.current) {
-      console.log("throttled");
       return;
     }
 
@@ -68,7 +69,6 @@ export default function App() {
   const goPrevious = useCallback(() => {
     if (activeIndRef.current === 0) return;
     if (throttledRef.current) {
-      console.log("throttled");
       return;
     }
 
@@ -93,8 +93,6 @@ export default function App() {
   );
 
   const pointerDownCb = useCallback((event: PointerEvent) => {
-    console.log("pdown");
-
     pointerStartData.current = {
       timestamp: Date.now(),
       y: event.clientY,
@@ -102,21 +100,22 @@ export default function App() {
   }, []);
 
   const pointerCancelCb = useCallback(() => {
-    console.log("pcancel");
     setYOffset(0);
+    yOffsetRef.current = 0;
     pointerStartData.current = undefined;
   }, [setYOffset]);
 
   const pointerUpCb = useCallback(
     (event: PointerEvent) => {
-      console.log("pup");
-
       setYOffset(0);
 
       if (!pointerStartData.current) return;
       if (
-        Date.now() - pointerStartData.current?.timestamp <
-        SWIPE_THRESHOLD_MS
+        pointerStartData.current && (
+          Date.now() - pointerStartData.current?.timestamp <
+          SWIPE_THRESHOLD_MS || Math.abs(yOffsetRef.current) >= (document.documentElement.clientHeight / 2)
+
+        )
       ) {
         if (event.y < pointerStartData.current.y) {
           goNext();
@@ -124,6 +123,8 @@ export default function App() {
           goPrevious();
         }
       }
+
+      yOffsetRef.current = 0;
       pointerStartData.current = undefined;
     },
     [goNext, goPrevious, setYOffset],
@@ -134,6 +135,7 @@ export default function App() {
       if (!pointerStartData.current) return;
 
       setYOffset(event.clientY - pointerStartData.current.y);
+      yOffsetRef.current = event.clientY - pointerStartData.current.y;
     },
     [setYOffset],
   );

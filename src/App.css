@@ -17,13 +17,8 @@ section {
   justify-content: center;
   align-items: center;
   perspective: 500px;
-  transition: top 0.5s ease-out;
 }
 
-section.past {
-  top: -100vh;
-}
-
-section.future {
-  top: 100vh;
+section.animated {
+  transition: all 0.5s ease-out;
 }
