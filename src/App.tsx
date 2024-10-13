@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Lethargy } from "lethargy-ts";
 
 const SLIDE_THROTTLE_MS = 500;
-const SWIPE_THRESHOLD_MS = 200;
+const SWIPE_MIN_THRESHOLD_MS = 50;
+const SWIPE_MAX_THRESHOLD_MS = 300;
 
 const lethargy = new Lethargy({
   delay: 50,
@@ -110,13 +111,12 @@ export default function App() {
       setYOffset(0);
 
       if (!pointerStartData.current) return;
-      if (
-        pointerStartData.current && (
-          Date.now() - pointerStartData.current?.timestamp <
-          SWIPE_THRESHOLD_MS || Math.abs(yOffsetRef.current) >= (document.documentElement.clientHeight / 2)
-
-        )
-      ) {
+      const currentTs = Date.now();
+      const isSwipe = currentTs - pointerStartData.current?.timestamp <
+      SWIPE_MAX_THRESHOLD_MS && currentTs - pointerStartData.current?.timestamp >
+      SWIPE_MIN_THRESHOLD_MS;
+      const isDragged = Math.abs(yOffsetRef.current) >= (document.documentElement.clientHeight / 2)
+      if (isSwipe || isDragged) {
         if (event.y < pointerStartData.current.y) {
           goNext();
         } else {
