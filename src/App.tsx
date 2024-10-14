@@ -2,7 +2,7 @@ import "./App.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Lethargy } from "lethargy-ts";
-import { isPointerEvent, isTouchEvent } from "./typeguard";
+import { isPointerEvent } from "./typeguard";
 
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_MIN_THRESHOLD_MS = 50;
