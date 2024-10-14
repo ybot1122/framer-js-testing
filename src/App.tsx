@@ -2,6 +2,7 @@ import "./App.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Lethargy } from "lethargy-ts";
+import { isPointerEvent, isTouchEvent } from "./typeguard";
 
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_MIN_THRESHOLD_MS = 50;
@@ -40,11 +41,15 @@ function Section({
         top,
         marginTop: yOffset,
       }}
-      className={yOffset === 0 ? 'animated' : ''}
+      className={yOffset === 0 ? "animated" : ""}
     >
       <h2>{`#00${index}`}</h2>
-      <div><button onClick={() => goToSlide(0)}>Go to slide 1</button></div>
-      <div><button onClick={() => goToSlide(5)}>Go to slide 6</button></div>
+      <div>
+        <button onClick={() => goToSlide(0)}>Go to slide 1</button>
+      </div>
+      <div>
+        <button onClick={() => goToSlide(5)}>Go to slide 6</button>
+      </div>
     </section>
   );
 }
@@ -59,12 +64,15 @@ export default function App() {
   const [activeInd, setActiveInd] = useState(activeIndRef.current);
   const [yOffset, setYOffset] = useState(0);
 
-  const goToSlide = useCallback((ind: number) => {
-    setActiveInd(ind);
-    activeIndRef.current = ind;
-    setYOffset(0);
-    yOffsetRef.current = 0;
-  }, [setActiveInd, setYOffset])
+  const goToSlide = useCallback(
+    (ind: number) => {
+      setActiveInd(ind);
+      activeIndRef.current = ind;
+      setYOffset(0);
+      yOffsetRef.current = 0;
+    },
+    [setActiveInd, setYOffset],
+  );
 
   const goNext = useCallback(() => {
     if (activeIndRef.current === 5) return;
@@ -104,10 +112,18 @@ export default function App() {
     [goNext, goPrevious],
   );
 
-  const pointerDownCb = useCallback((event: PointerEvent) => {
+  const pointerDownCb = useCallback((event: PointerEvent | TouchEvent) => {
+    let y = 0;
+
+    if (isPointerEvent(event)) {
+      y = event.y;
+    } else {
+      y = event.touches[0].clientY;
+    }
+
     pointerStartData.current = {
       timestamp: Date.now(),
-      y: event.clientY,
+      y,
     };
   }, []);
 
@@ -118,17 +134,28 @@ export default function App() {
   }, [setYOffset]);
 
   const pointerUpCb = useCallback(
-    (event: PointerEvent) => {
+    (event: PointerEvent | TouchEvent) => {
       setYOffset(0);
+
+      let y = 0;
+      if (isPointerEvent(event)) {
+        y = event.y;
+      } else {
+        y = event.touches[0].clientY;
+      }
 
       if (!pointerStartData.current) return;
       const currentTs = Date.now();
-      const isSwipe = currentTs - pointerStartData.current?.timestamp <
-      SWIPE_MAX_THRESHOLD_MS && currentTs - pointerStartData.current?.timestamp >
-      SWIPE_MIN_THRESHOLD_MS;
-      const isDragged = Math.abs(yOffsetRef.current) >= (document.documentElement.clientHeight / 2)
+      const isSwipe =
+        currentTs - pointerStartData.current?.timestamp <
+          SWIPE_MAX_THRESHOLD_MS &&
+        currentTs - pointerStartData.current?.timestamp >
+          SWIPE_MIN_THRESHOLD_MS;
+      const isDragged =
+        Math.abs(yOffsetRef.current) >=
+        document.documentElement.clientHeight / 2;
       if (isSwipe || isDragged) {
-        if (event.y < pointerStartData.current.y) {
+        if (y < pointerStartData.current.y) {
           goNext();
         } else {
           goPrevious();
@@ -142,27 +169,53 @@ export default function App() {
   );
 
   const pointerMoveCb = useCallback(
-    (event: PointerEvent) => {
+    (event: PointerEvent | TouchEvent) => {
       if (!pointerStartData.current) return;
 
-      setYOffset(event.clientY - pointerStartData.current.y);
-      yOffsetRef.current = event.clientY - pointerStartData.current.y;
+      let y = 0;
+      if (isPointerEvent(event)) {
+        y = event.y;
+      } else {
+        y = event.touches[0].clientY;
+      }
+
+      setYOffset(y - pointerStartData.current.y);
+      yOffsetRef.current = y - pointerStartData.current.y;
     },
     [setYOffset],
   );
 
   useEffect(() => {
     addEventListener("wheel", wheelCb);
-    addEventListener("pointerdown", pointerDownCb);
-    addEventListener("pointerup", pointerUpCb);
-    addEventListener("pointermove", pointerMoveCb);
-    addEventListener("pointercancel", pointerCancelCb);
+
+    // feature detect
+
+    if (window.PointerEvent) {
+      addEventListener("pointerdown", pointerDownCb);
+      addEventListener("pointerup", pointerUpCb);
+      addEventListener("pointermove", pointerMoveCb);
+      addEventListener("pointercancel", pointerCancelCb);
+    } else if (window.TouchEvent) {
+      addEventListener("touchstart", pointerDownCb);
+      addEventListener("touchcancel", pointerCancelCb);
+      addEventListener("touchmove", pointerMoveCb);
+      addEventListener("touchend", pointerUpCb);
+    }
+
     return () => {
       removeEventListener("wheel", wheelCb);
-      removeEventListener("pointerdown", pointerDownCb);
-      removeEventListener("pointerup", pointerUpCb);
-      removeEventListener("pointermove", pointerMoveCb);
-      removeEventListener("pointercancel", pointerCancelCb);
+
+      if (window.PointerEvent) {
+        removeEventListener("pointerdown", pointerDownCb);
+        removeEventListener("pointerup", pointerUpCb);
+        removeEventListener("pointermove", pointerMoveCb);
+        removeEventListener("pointercancel", pointerCancelCb);
+      } else if (window.TouchEvent) {
+        removeEventListener("touchstart", pointerDownCb);
+        removeEventListener("touchcancel", pointerCancelCb);
+        removeEventListener("touchmove", pointerMoveCb);
+        removeEventListener("touchend", pointerUpCb);
+      }
     };
   }, [wheelCb, pointerDownCb, pointerUpCb]);
 
