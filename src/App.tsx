@@ -2,7 +2,7 @@ import "./App.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Lethargy } from "lethargy-ts";
-import { isPointerEvent } from "./typeguard";
+import { isMouseEvent, isPointerEvent } from "./typeguard";
 
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_MIN_THRESHOLD_MS = 50;
@@ -112,20 +112,23 @@ export default function App() {
     [goNext, goPrevious],
   );
 
-  const pointerDownCb = useCallback((event: PointerEvent | TouchEvent) => {
-    let y = 0;
+  const pointerDownCb = useCallback(
+    (event: PointerEvent | TouchEvent | MouseEvent) => {
+      let y = 0;
 
-    if (isPointerEvent(event)) {
-      y = event.y;
-    } else {
-      y = event.touches[0].clientY;
-    }
+      if (isPointerEvent(event) || isMouseEvent(event)) {
+        y = event.y;
+      } else {
+        y = event.touches[0].clientY;
+      }
 
-    pointerStartData.current = {
-      timestamp: Date.now(),
-      y,
-    };
-  }, []);
+      pointerStartData.current = {
+        timestamp: Date.now(),
+        y,
+      };
+    },
+    [],
+  );
 
   const pointerCancelCb = useCallback(() => {
     setYOffset(0);
@@ -134,11 +137,11 @@ export default function App() {
   }, [setYOffset]);
 
   const pointerUpCb = useCallback(
-    (event: PointerEvent | TouchEvent) => {
+    (event: PointerEvent | TouchEvent | MouseEvent) => {
       setYOffset(0);
 
       let y = 0;
-      if (isPointerEvent(event)) {
+      if (isPointerEvent(event) || isMouseEvent(event)) {
         y = event.y;
       } else {
         y = event.touches[0].clientY;
@@ -169,11 +172,11 @@ export default function App() {
   );
 
   const pointerMoveCb = useCallback(
-    (event: PointerEvent | TouchEvent) => {
+    (event: PointerEvent | TouchEvent | MouseEvent) => {
       if (!pointerStartData.current) return;
 
       let y = 0;
-      if (isPointerEvent(event)) {
+      if (isPointerEvent(event) || isMouseEvent(event)) {
         y = event.y;
       } else {
         y = event.touches[0].clientY;
@@ -200,6 +203,11 @@ export default function App() {
       addEventListener("touchcancel", pointerCancelCb);
       addEventListener("touchmove", pointerMoveCb);
       addEventListener("touchend", pointerUpCb);
+    } else {
+      addEventListener("mousedown", pointerDownCb);
+      addEventListener("mousecancel", pointerCancelCb);
+      addEventListener("mousemove", pointerMoveCb);
+      addEventListener("mouseup", pointerUpCb);
     }
 
     return () => {
@@ -215,6 +223,11 @@ export default function App() {
         removeEventListener("touchcancel", pointerCancelCb);
         removeEventListener("touchmove", pointerMoveCb);
         removeEventListener("touchend", pointerUpCb);
+      } else {
+        removeEventListener("mousedown", pointerDownCb);
+        removeEventListener("mousecancel", pointerCancelCb);
+        removeEventListener("mousemove", pointerMoveCb);
+        removeEventListener("mouseup", pointerUpCb);
       }
     };
   }, [wheelCb, pointerDownCb, pointerUpCb]);
