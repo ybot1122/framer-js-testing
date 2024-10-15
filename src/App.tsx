@@ -7,6 +7,7 @@ import { isMouseEvent, isPointerEvent } from "./typeguard";
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_MIN_THRESHOLD_MS = 50;
 const SWIPE_MAX_THRESHOLD_MS = 300;
+const SWIPE_MIN_DISTANCE = 100;
 
 const lethargy = new Lethargy({
   delay: 50,
@@ -156,7 +157,7 @@ export default function App() {
         currentTs - pointerStartData.current?.timestamp <
           SWIPE_MAX_THRESHOLD_MS &&
         currentTs - pointerStartData.current?.timestamp >
-          SWIPE_MIN_THRESHOLD_MS;
+          SWIPE_MIN_THRESHOLD_MS && Math.abs(pointerStartData.current.y - y) > SWIPE_MIN_DISTANCE;
       const isDragged =
         Math.abs(yOffsetRef.current) >=
         document.documentElement.clientHeight / 2;
@@ -207,10 +208,6 @@ export default function App() {
       addEventListener("touchcancel", pointerCancelCb);
       addEventListener("touchmove", pointerMoveCb);
       addEventListener("touchend", pointerUpCb);
-      addEventListener("mousedown", pointerDownCb);
-      addEventListener("mousecancel", pointerCancelCb);
-      addEventListener("mousemove", pointerMoveCb);
-      addEventListener("mouseup", pointerUpCb);
     }
 
     return () => {
@@ -225,10 +222,6 @@ export default function App() {
         removeEventListener("touchcancel", pointerCancelCb);
         removeEventListener("touchmove", pointerMoveCb);
         removeEventListener("touchend", pointerUpCb);
-        removeEventListener("mousedown", pointerDownCb);
-        removeEventListener("mousecancel", pointerCancelCb);
-        removeEventListener("mousemove", pointerMoveCb);
-        removeEventListener("mouseup", pointerUpCb);
       }
     };
   }, [wheelCb, pointerDownCb, pointerUpCb]);
