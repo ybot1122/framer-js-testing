@@ -22,6 +22,15 @@ section.animated {
   transition: all 0.5s ease-out;
 }
 
+div.test {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
 main {
   height: 100vh;
   width: 100vw;

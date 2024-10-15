@@ -46,15 +46,10 @@ function Section({
       className={yOffset === 0 ? "animated" : ""}
     >
       <h2>{`#00${index}`}</h2>
-      <div>
         <button onClick={() => setOtherPage(true)}>Other</button>
-      </div>
-      <div>
         <button onClick={() => goToSlide(0)}>Go to slide 1</button>
-      </div>
-      <div>
         <button onClick={() => goToSlide(5)}>Go to slide 6</button>
-      </div>
+        <p>yOffset: {yOffset}</p>
     </section>
   );
 }
@@ -265,7 +260,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <div className="test">
       {[0, 1, 2, 3, 4, 5].map((ind) => {
         return (
           <Section
@@ -279,6 +274,6 @@ export default function App() {
           />
         );
       })}
-    </>
+    </div>
   );
 }
