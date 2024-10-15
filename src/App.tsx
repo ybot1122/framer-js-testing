@@ -119,26 +119,24 @@ export default function App() {
       if (isPointerEvent(event) || isMouseEvent(event)) {
         y = event.y;
       } else {
-        y = event.touches[0].clientY;
+        console.log(event.changedTouches["0"].clientY);
+        y = event.changedTouches["0"].clientY;
       }
+
+      console.log('set')
 
       pointerStartData.current = {
         timestamp: Date.now(),
         y,
       };
-
-      event.preventDefault();
-      event.stopPropagation();
-      return false;
     },
     [],
   );
 
-  const pointerCancelCb = useCallback(() => {
-    setYOffset(0);
-    yOffsetRef.current = 0;
-    pointerStartData.current = undefined;
-}, [setYOffset]);
+  const pointerCancelCb = useCallback((e: any) => {
+    console.log(e);
+    console.log('cancelled?')
+}, []);
 
   const pointerUpCb = useCallback(
     (event: PointerEvent | TouchEvent | MouseEvent) => {
@@ -148,7 +146,8 @@ export default function App() {
       if (isPointerEvent(event) || isMouseEvent(event)) {
         y = event.y;
       } else {
-        y = event.touches[0].clientY;
+        y = event.changedTouches["0"].clientY;
+        console.log('up: ' +y)
       }
 
       if (!pointerStartData.current) return;
@@ -171,31 +170,25 @@ export default function App() {
 
       yOffsetRef.current = 0;
       pointerStartData.current = undefined;
-
-      event.preventDefault();
-      event.stopPropagation();
-      return false;  
     },
     [goNext, goPrevious, setYOffset],
   );
 
   const pointerMoveCb = useCallback(
     (event: PointerEvent | TouchEvent | MouseEvent) => {
+      console.log(event, pointerStartData.current);
       if (!pointerStartData.current) return;
 
       let y = 0;
       if (isPointerEvent(event) || isMouseEvent(event)) {
         y = event.y;
       } else {
-        y = event.touches[0].clientY;
+        y = event.changedTouches["0"].clientY;
+        console.log('moved: ' +y)
       }
 
       setYOffset(y - pointerStartData.current.y);
       yOffsetRef.current = y - pointerStartData.current.y;
-
-      event.preventDefault();
-      event.stopPropagation();
-      return false;  
     },
     [setYOffset],
   );
@@ -210,7 +203,6 @@ export default function App() {
       addEventListener("pointerup", pointerUpCb);
       addEventListener("pointermove", pointerMoveCb);
       addEventListener("pointercancel", pointerCancelCb);
-    } else {
       addEventListener("touchstart", pointerDownCb);
       addEventListener("touchcancel", pointerCancelCb);
       addEventListener("touchmove", pointerMoveCb);
@@ -229,7 +221,6 @@ export default function App() {
         removeEventListener("pointerup", pointerUpCb);
         removeEventListener("pointermove", pointerMoveCb);
         removeEventListener("pointercancel", pointerCancelCb);
-      } else {
         removeEventListener("touchstart", pointerDownCb);
         removeEventListener("touchcancel", pointerCancelCb);
         removeEventListener("touchmove", pointerMoveCb);
