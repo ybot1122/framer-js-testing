@@ -126,6 +126,10 @@ export default function App() {
         timestamp: Date.now(),
         y,
       };
+
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
     },
     [],
   );
@@ -134,7 +138,7 @@ export default function App() {
     setYOffset(0);
     yOffsetRef.current = 0;
     pointerStartData.current = undefined;
-  }, [setYOffset]);
+}, [setYOffset]);
 
   const pointerUpCb = useCallback(
     (event: PointerEvent | TouchEvent | MouseEvent) => {
@@ -167,6 +171,10 @@ export default function App() {
 
       yOffsetRef.current = 0;
       pointerStartData.current = undefined;
+
+      event.preventDefault();
+      event.stopPropagation();
+      return false;  
     },
     [goNext, goPrevious, setYOffset],
   );
@@ -184,6 +192,10 @@ export default function App() {
 
       setYOffset(y - pointerStartData.current.y);
       yOffsetRef.current = y - pointerStartData.current.y;
+
+      event.preventDefault();
+      event.stopPropagation();
+      return false;  
     },
     [setYOffset],
   );
@@ -198,12 +210,11 @@ export default function App() {
       addEventListener("pointerup", pointerUpCb);
       addEventListener("pointermove", pointerMoveCb);
       addEventListener("pointercancel", pointerCancelCb);
-    } else if (window.TouchEvent) {
+    } else {
       addEventListener("touchstart", pointerDownCb);
       addEventListener("touchcancel", pointerCancelCb);
       addEventListener("touchmove", pointerMoveCb);
       addEventListener("touchend", pointerUpCb);
-    } else {
       addEventListener("mousedown", pointerDownCb);
       addEventListener("mousecancel", pointerCancelCb);
       addEventListener("mousemove", pointerMoveCb);
@@ -218,12 +229,11 @@ export default function App() {
         removeEventListener("pointerup", pointerUpCb);
         removeEventListener("pointermove", pointerMoveCb);
         removeEventListener("pointercancel", pointerCancelCb);
-      } else if (window.TouchEvent) {
+      } else {
         removeEventListener("touchstart", pointerDownCb);
         removeEventListener("touchcancel", pointerCancelCb);
         removeEventListener("touchmove", pointerMoveCb);
         removeEventListener("touchend", pointerUpCb);
-      } else {
         removeEventListener("mousedown", pointerDownCb);
         removeEventListener("mousecancel", pointerCancelCb);
         removeEventListener("mousemove", pointerMoveCb);
