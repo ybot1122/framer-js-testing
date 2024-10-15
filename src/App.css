@@ -5,7 +5,6 @@ body {
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 section {
@@ -21,4 +20,18 @@ section {
 
 section.animated {
   transition: all 0.5s ease-out;
+}
+
+main {
+  height: 100vh;
+  width: 100vw;
+  overflow: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+main > div {
+  height: 100%;
+  background: blue;
+  scroll-snap-align: start;
 }

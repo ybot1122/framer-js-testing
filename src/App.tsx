@@ -19,12 +19,14 @@ function Section({
   activeInd,
   yOffset,
   goToSlide,
+  setOtherPage,
 }: {
   index: number;
   total: number;
   activeInd: number;
   yOffset: number;
   goToSlide: (ind: number) => void;
+  setOtherPage: (b: boolean) => void;
 }) {
   let top = 0 + "px";
   if (index < activeInd) {
@@ -44,6 +46,9 @@ function Section({
       className={yOffset === 0 ? "animated" : ""}
     >
       <h2>{`#00${index}`}</h2>
+      <div>
+        <button onClick={() => setOtherPage(true)}>Other</button>
+      </div>
       <div>
         <button onClick={() => goToSlide(0)}>Go to slide 1</button>
       </div>
@@ -242,6 +247,23 @@ export default function App() {
     };
   }, [wheelCb, pointerDownCb, pointerUpCb]);
 
+  const [otherPage, setOtherPage] = useState(false);
+  const mainRef = useRef<HTMLDivElement>(null);
+
+
+  if (otherPage) {
+    return (
+      <main ref={mainRef}>
+        <div>Hello</div>
+        <div>Hello2</div>
+        <div>Hello3</div>
+        <div>Hello4</div>
+        <div>Hello5</div>
+        <div>Hello6 <button onClick={() => mainRef?.current?.scrollTo(0, 0)}>Go to top</button></div>
+      </main>
+    )
+  }
+
   return (
     <>
       {[0, 1, 2, 3, 4, 5].map((ind) => {
@@ -253,6 +275,7 @@ export default function App() {
             activeInd={activeInd}
             yOffset={yOffset}
             goToSlide={goToSlide}
+            setOtherPage={setOtherPage}
           />
         );
       })}
