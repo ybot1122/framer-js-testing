@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Lethargy } from "lethargy-ts";
 import { isMouseEvent, isPointerEvent } from "./typeguard";
 
-import {Square, ReactFullpageSlideshow} from "@ybot1122/react-fullpage-slideshow"
+import {Square} from "@ybot1122/react-fullpage-slideshow"
 
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_MIN_THRESHOLD_MS = 50;
