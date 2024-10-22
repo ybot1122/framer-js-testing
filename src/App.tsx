@@ -6,7 +6,7 @@ export default function App() {
       <div style={{
         height: '100vh',
         width: '100vw,'
-      }}>Hi</div>
+      }}>Hi contain</div>
       <div style={{
         height: '100vh',
         width: '100vw,'
