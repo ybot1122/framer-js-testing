@@ -11,7 +11,7 @@
     "pretty": "prettier --write ."
   },
   "dependencies": {
-    "@ybot1122/react-fullpage-slideshow": "^0.0.2-alpha",
+    "@ybot1122/react-fullpage-slideshow": "file:../react-fullpage-slideshow",
     "lethargy-ts": "^0.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
