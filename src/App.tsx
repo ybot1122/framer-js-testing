@@ -9,10 +9,10 @@ export default function App() {
 
 
     items={[
-      ({goToSlide, goToNextSlide}) => <Slide goToSlide={goToSlide} goToNextSlide={goToNextSlide} label="slide one" />,
-      ({goToSlide, goToNextSlide}) => <Slide goToSlide={goToSlide} goToNextSlide={goToNextSlide} label="slide two" />,
-      ({goToSlide, goToNextSlide}) => <Slide goToSlide={goToSlide} goToNextSlide={goToNextSlide} label="slide three" />,
-      ({goToSlide, goToNextSlide}) => <Slide goToSlide={goToSlide} goToNextSlide={goToNextSlide} label="slide four" />,
+      (api) => <Slide {...api} label="slide 1" />,
+      (api) => <Slide {...api} label="slide 2" />,
+      (api) => <Slide {...api} label="slide 3" />,
+      (api) => <Slide {...api} label="slide 4" />,
       (api) => <Slide {...api} label="slide five" />,
     ]}
 ></ReactFullpageSlideshow>
@@ -25,7 +25,7 @@ const Slide = ({goToSlide, goToNextSlide, label, goToPreviousSlide}: any) => {
 
   return (
 
-    <div style={{
+    <div className="bg-blue-500 even:bg-green-500" style={{
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
