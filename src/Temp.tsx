@@ -65,8 +65,8 @@ export default function App() {
   const activeIndRef = useRef(0);
   const throttledRef = useRef(false);
   const yOffsetRef = useRef(0);
-  const [activeInd, setActiveInd] = useState(activeIndRef.current);
   const [yOffset, setYOffset] = useState(0);
+  const [activeInd, setActiveInd] = useState(activeIndRef.current);
 
   const goToSlide = useCallback(
     (ind: number) => {

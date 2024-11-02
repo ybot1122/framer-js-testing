@@ -15,6 +15,8 @@ export default function App() {
       (api) => <Slide {...api} label="slide 4" />,
       (api) => <Slide {...api} label="slide five" />,
     ]}
+    itemClassName="odd:bg-blue-500 even:bg-green-500"
+    slideAnimationMs={3000}
 ></ReactFullpageSlideshow>
 
     </main>
@@ -25,7 +27,7 @@ const Slide = ({goToSlide, goToNextSlide, label, goToPreviousSlide}: any) => {
 
   return (
 
-    <div className="bg-blue-500 even:bg-green-500" style={{
+    <div style={{
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
