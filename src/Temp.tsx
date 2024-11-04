@@ -4,8 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Lethargy } from "lethargy-ts";
 import { isMouseEvent, isPointerEvent } from "./typeguard";
 
-import {Square} from "@ybot1122/react-fullpage-slideshow"
-
 const SLIDE_THROTTLE_MS = 500;
 const SWIPE_MIN_THRESHOLD_MS = 50;
 const SWIPE_MAX_THRESHOLD_MS = 300;
@@ -49,7 +47,6 @@ function Section({
       className={yOffset === 0 ? "animated" : ""}
     >
       <h2>{`#00${index}`}</h2>
-      <Square />
         <button onClick={() => setOtherPage(true)}>Other</button>
         <button onClick={() => goToSlide(0)}>Go to slide 1</button>
         <button onClick={() => goToSlide(5)}>Go to slide 6</button>
