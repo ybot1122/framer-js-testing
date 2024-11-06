@@ -1,3 +1,4 @@
+import { rfsApi } from "../../react-fullpage-slideshow/dist/types";
 import "./App.css";
 import { ReactFullpageSlideshow } from "@ybot1122/react-fullpage-slideshow";
 
@@ -9,11 +10,11 @@ export default function App() {
 
 
     items={[
-      (api) => <Slide {...api} label="slide 1" />,
-      (api) => <Slide {...api} label="slide 2" />,
-      (api) => <Slide {...api} label="slide 3" />,
-      (api) => <Slide {...api} label="slide 4" />,
-      (api) => <Slide {...api} label="slide five" />,
+      (api: rfsApi) => <Slide {...api} label="slide 1" />,
+      (api: rfsApi) => <Slide {...api} label="slide 2" />,
+      (api: rfsApi) => <Slide {...api} label="slide 3" />,
+      (api: rfsApi) => <Slide {...api} label="slide 4" />,
+      (api: rfsApi) => <Slide {...api} label="slide five" />,
     ]}
     itemClassName="odd:bg-blue-500 even:bg-green-500"
     slideAnimationMs={3000}
