@@ -1,6 +1,9 @@
-import { rfsApi } from "../../react-fullpage-slideshow/dist/types";
 import "./App.css";
 import { ReactFullpageSlideshow } from "@ybot1122/react-fullpage-slideshow";
+
+type rfsApi = {
+  
+}
 
 export default function App() {
   return (
